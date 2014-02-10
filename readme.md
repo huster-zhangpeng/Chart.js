@@ -1,4 +1,6 @@
 Chart.js
+
+#I want to let it can draw gante picture.
 =======
 *Simple HTML5 Charts using the canvas element* [chartjs.org](http://www.chartjs.org)
 
