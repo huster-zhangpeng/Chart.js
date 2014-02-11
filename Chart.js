@@ -263,6 +263,14 @@ window.Chart = function(context){
 
   this.Gantt = function(data,options){
     chart.Gantt.defaults = {
+      maxTaskNameLength : 130,
+      scaleLineColor : "rgba(0,0,0,.1)",
+      scaleLineWidth : 1,
+      scaleFontFamily : "'Arial'",
+      scaleFontSize : 12,
+      scaleFontStyle : "normal",
+      scaleFontColor : "#666",
+
       segmentShowStroke : true,
       segmentStrokeColor : "#fff",
       segmentStrokeWidth : 2,
@@ -705,8 +713,6 @@ window.Chart = function(context){
                  maxSteps : maxSteps,
                  minSteps : minSteps
       };
-
-
     }
   }
 
@@ -755,17 +761,19 @@ window.Chart = function(context){
   }
   
   var Gantt = function(data,config,ctx){
-    var segmentTotal = 0;
+    var segmentTotal = 0, scaleHeight, scaleWidth;
+    scaleHeight = height - config.scaleFontSize - 5;
+    scaleWidth = width - config.maxTaskNameLength - 5;
 
     //In case we have a canvas that is not a square. Minus 5 pixels as padding round the edge.
     var pieRadius = Min([height/2,width/2]) - 5;
 
-    for (var i=0; i<data.length; i++){
-      segmentTotal += data[i].value;
+    for (var i=0; i<data.pieData.length; i++){
+      segmentTotal += data.pieData[i].value;
     }
 
 
-    animationLoop(config,null,drawGanttTasks,ctx);
+    animationLoop(config,drawScale ,drawGanttTasks,ctx);
 
     function drawGanttTasks(animationDecimal){
       var cumulativeAngle = -Math.PI/2,
@@ -779,13 +787,13 @@ window.Chart = function(context){
           rotateAnimation = animationDecimal;
         }
       }
-      for (var i=0; i<data.length; i++){
-        var segmentAngle = rotateAnimation * ((data[i].value/segmentTotal) * (Math.PI*2));
+      for (var i=0; i<data.pieData.length; i++){
+        var segmentAngle = rotateAnimation * ((data.pieData[i].value/segmentTotal) * (Math.PI*2));
         ctx.beginPath();
         ctx.arc(width/2,height/2,scaleAnimation * pieRadius,cumulativeAngle,cumulativeAngle + segmentAngle);
         ctx.lineTo(width/2,height/2);
         ctx.closePath();
-        ctx.fillStyle = data[i].color;
+        ctx.fillStyle = data.pieData[i].color;
         ctx.fill();
 
         if(config.segmentShowStroke){
@@ -796,6 +804,27 @@ window.Chart = function(context){
         cumulativeAngle += segmentAngle;
       }			
     }		
+
+    function drawScale () {
+      var i, step, _i, _ref;
+      ctx.lineWidth = config.scaleLineWidth;
+      ctx.strokeStyle = config.scaleLineColor;
+      ctx.beginPath();
+      ctx.moveTo(width, scaleHeight);
+      ctx.lineTo(width - scaleWidth, scaleHeight);
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.moveTo(width - scaleWidth, 0);
+      ctx.lineTo(width - scaleWidth, scaleHeight);
+      ctx.stroke();
+      step = (scaleWidth - 5) / data.totalWeeks;
+      for (i = _i = 1, _ref = data.totalWeeks; 1 <= _ref ? _i <= _ref : _i >= _ref; i = 1 <= _ref ? ++_i : --_i) {
+        ctx.beginPath();
+        ctx.moveTo(width - scaleWidth + step * i, 0);
+        ctx.lineTo(width - scaleWidth + step * i, scaleHeight);
+        ctx.stroke();
+      }
+    }
   }
 
   var Doughnut = function(data,config,ctx){
@@ -1196,9 +1225,8 @@ window.Chart = function(context){
           ctx.fillText(calculatedScale.labels[j],yAxisPosX-8,xAxisPosY - ((j+1) * scaleHop));
         }
       }
-
-
     }
+
     function calculateXAxisSize(){
       var longestText = 1;
       //if we are showing the labels
@@ -1235,12 +1263,10 @@ window.Chart = function(context){
         if (width/data.labels.length < Math.cos(rotateLabels) * widestXLabel){
           rotateLabels = 90;
           maxSize -= widestXLabel; 
-        }
-        else{
+        } else{
           maxSize -= Math.sin(rotateLabels) * widestXLabel;
         }
-      }
-      else{
+      } else{
         maxSize -= config.scaleFontSize;
       }
 
@@ -1289,6 +1315,7 @@ window.Chart = function(context){
     return (scaleHop*calculatedScale.steps) * scalingFactor;
   }
 
+  // drawscale = draw background included the scale
   function animationLoop(config,drawScale,drawData,ctx){
     var animFrameAmount = (config.animation)? 1/CapValue(config.animationSteps,Number.MAX_VALUE,1) : 1,
         easingFunction = animationOptions[config.animationEasing],
