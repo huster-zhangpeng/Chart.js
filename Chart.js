@@ -270,6 +270,10 @@ window.Chart = function(context){
       scaleFontSize : 12,
       scaleFontStyle : "normal",
       scaleFontColor : "#666",
+      scaleWeekLineWidth : 2,
+      scaleWeekLineColor : "#333",
+      scaleTaskFontSize : 12,
+      scaleTaskFontColor : "#666",
 
       segmentShowStroke : true,
       segmentStrokeColor : "#fff",
@@ -806,7 +810,7 @@ window.Chart = function(context){
     }		
 
     function drawScale () {
-      var i, step, _i, _ref;
+      var i, posX, step, task, _i, _j, _len, _ref, _ref1;
       ctx.lineWidth = config.scaleLineWidth;
       ctx.strokeStyle = config.scaleLineColor;
       ctx.beginPath();
@@ -818,12 +822,26 @@ window.Chart = function(context){
       ctx.lineTo(width - scaleWidth, scaleHeight);
       ctx.stroke();
       step = (scaleWidth - 5) / data.totalWeeks;
+      ctx.lineWidth = config.scaleWeekLineWidth;
+      ctx.strokeStyle = config.scaleWeekLineColor;
+      ctx.textAlign = "right";
       for (i = _i = 1, _ref = data.totalWeeks; 1 <= _ref ? _i <= _ref : _i >= _ref; i = 1 <= _ref ? ++_i : --_i) {
+        posX = width - scaleWidth + step * i;
         ctx.beginPath();
-        ctx.moveTo(width - scaleWidth + step * i, 0);
-        ctx.lineTo(width - scaleWidth + step * i, scaleHeight);
+        ctx.moveTo(posX, 0);
+        ctx.lineTo(posX, scaleHeight);
         ctx.stroke();
+        ctx.fillText("" + i, posX, scaleHeight + config.scaleFontSize);
       }
+      ctx.font = config.scaleFontStyle + " " + config.scaleTaskFontSize + "px " + config.scaleFontFamily;
+      ctx.fillStyle = config.scaleTaskFontColor;
+      step = config.scaleTaskFontSize + 5;
+      _ref1 = data.tasks;
+      for (i = _j = 0, _len = _ref1.length; _j < _len; i = ++_j) {
+        task = _ref1[i];
+        ctx.fillText(task.name, width - scaleWidth - 5, step * i + config.scaleTaskFontSize + 5);
+      }
+      ctx.font = config.scaleFontStyle + " " + config.scaleFontSize + "px " + config.scaleFontFamily;
     }
   }
 
@@ -1102,11 +1120,7 @@ window.Chart = function(context){
                  maxSteps : maxSteps,
                  minSteps : minSteps
       };
-
-
     }
-
-
   }
 
   var Bar = function(data,config,ctx){
