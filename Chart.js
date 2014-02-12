@@ -274,16 +274,18 @@ window.Chart = function(context){
       scaleWeekLineColor : "#333",
       scaleTaskFontSize : 12,
       scaleTaskFontColor : "#666",
+      animation : true,
+      animationSteps : 100,
+      animationEasing : "easeOutQuart",
+      onAnimationComplete : null,
+      taskLineWidth : 5,
+      taskLineColor : "rgba(0,0,255,.4)",
 
       segmentShowStroke : true,
       segmentStrokeColor : "#fff",
       segmentStrokeWidth : 2,
-      animation : true,
-      animationSteps : 100,
-      animationEasing : "easeOutBounce",
       animateRotate : true,
-      animateScale : false,
-      onAnimationComplete : null
+      animateScale : false
     };		
 
     var config = (options)? mergeChartConfig(chart.Gantt.defaults,options) : chart.Gantt.defaults;
@@ -776,37 +778,54 @@ window.Chart = function(context){
       segmentTotal += data.pieData[i].value;
     }
 
+    today = new Date();
+    startDay = new Date(data.start);
+    diff = (today - startDay) / (7 * 24 * 3600 * 1000);
 
     animationLoop(config,drawScale ,drawGanttTasks,ctx);
 
     function drawGanttTasks(animationDecimal){
-      var cumulativeAngle = -Math.PI/2,
-          scaleAnimation = 1,
-          rotateAnimation = 1;
-      if (config.animation) {
-        if (config.animateScale) {
-          scaleAnimation = animationDecimal;
-        }
-        if (config.animateRotate){
-          rotateAnimation = animationDecimal;
-        }
+      var from, i, step, task, to, todayPosX, _i, _len, _ref;
+      todayPosX = 0;
+      if (diff < data.totalWeeks) {
+        todayPosX = width - scaleWidth + diff / data.totalWeeks * animationDecimal * (scaleWidth - 5);
       }
-      for (var i=0; i<data.pieData.length; i++){
-        var segmentAngle = rotateAnimation * ((data.pieData[i].value/segmentTotal) * (Math.PI*2));
-        ctx.beginPath();
-        ctx.arc(width/2,height/2,scaleAnimation * pieRadius,cumulativeAngle,cumulativeAngle + segmentAngle);
-        ctx.lineTo(width/2,height/2);
-        ctx.closePath();
-        ctx.fillStyle = data.pieData[i].color;
-        ctx.fill();
-
-        if(config.segmentShowStroke){
-          ctx.lineWidth = config.segmentStrokeWidth;
-          ctx.strokeStyle = config.segmentStrokeColor;
+      step = 20;
+      ctx.lineCap = "round";
+      ctx.lineWidth = config.taskLineWidth;
+      ctx.strokeStyle = config.taskLineColor;
+      _ref = data.tasks;
+      for (i = _i = 0, _len = _ref.length; _i < _len; i = ++_i) {
+        task = _ref[i];
+        from = width - scaleWidth + task.from / data.totalWeeks * (scaleWidth - 5);
+        to = width - scaleWidth + (task.from + (task.to - task.from) * animationDecimal) / data.totalWeeks * (scaleWidth - 5);
+        if ((from < todayPosX && todayPosX < to)) {
+          ctx.strokeStyle = "rgb(255,0,0)";
+          ctx.beginPath();
+          ctx.moveTo(from, step * i + 5);
+          ctx.lineTo(todayPosX, step * i + 5);
+          ctx.stroke();
+          ctx.strokeStyle = config.taskLineColor;
+          ctx.beginPath();
+          ctx.moveTo(todayPosX, step * i + 5);
+          ctx.lineTo(to, step * i + 5);
+          ctx.stroke();
+        } else {
+          ctx.strokeStyle = from >= todayPosX ? config.taskLineColor : "rgb(255,0,0)";
+          ctx.beginPath();
+          ctx.moveTo(from, step * i + 5);
+          ctx.lineTo(to, step * i + 5);
           ctx.stroke();
         }
-        cumulativeAngle += segmentAngle;
-      }			
+      }
+      if (todayPosX > 0) {
+        ctx.lineWidth = config.scaleWeekLineWidth + 2;
+        ctx.strokeStyle = "rgba(255,0,0,.4)";
+        ctx.beginPath();
+        ctx.moveTo(todayPosX, 0);
+        ctx.lineTo(todayPosX, scaleHeight);
+        ctx.stroke();
+      }
     }		
 
     function drawScale () {
@@ -817,14 +836,15 @@ window.Chart = function(context){
       ctx.moveTo(width, scaleHeight);
       ctx.lineTo(width - scaleWidth, scaleHeight);
       ctx.stroke();
+      ctx.lineWidth = config.scaleWeekLineWidth;
+      ctx.strokeStyle = config.scaleWeekLineColor;
       ctx.beginPath();
       ctx.moveTo(width - scaleWidth, 0);
       ctx.lineTo(width - scaleWidth, scaleHeight);
       ctx.stroke();
       step = (scaleWidth - 5) / data.totalWeeks;
-      ctx.lineWidth = config.scaleWeekLineWidth;
-      ctx.strokeStyle = config.scaleWeekLineColor;
       ctx.textAlign = "right";
+      ctx.fillText(data.start, width - scaleWidth, scaleHeight + config.scaleFontSize);
       for (i = _i = 1, _ref = data.totalWeeks; 1 <= _ref ? _i <= _ref : _i >= _ref; i = 1 <= _ref ? ++_i : --_i) {
         posX = width - scaleWidth + step * i;
         ctx.beginPath();
