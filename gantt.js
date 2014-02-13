@@ -42,19 +42,19 @@
         if ((from < todayPosX && todayPosX < to)) {
           ctx.strokeStyle = config.taskFinishLineColor;
           ctx.beginPath();
-          ctx.moveTo(from, step * i + config.scaleFontSize * 3 / 25);
-          ctx.lineTo(todayPosX, step * i + config.scaleFontSize * 3 / 25);
+          ctx.moveTo(from, step * i + config.scaleFontSize * 3 / 2);
+          ctx.lineTo(todayPosX, step * i + config.scaleFontSize * 3 / 2);
           ctx.stroke();
           ctx.strokeStyle = config.taskLineColor;
           ctx.beginPath();
-          ctx.moveTo(todayPosX, step * i + config.scaleFontSize * 3 / 25);
-          ctx.lineTo(to, step * i + config.scaleFontSize * 3 / 25);
+          ctx.moveTo(todayPosX, step * i + config.scaleFontSize * 3 / 2);
+          ctx.lineTo(to, step * i + config.scaleFontSize * 3 / 2);
           ctx.stroke();
         } else {
           ctx.strokeStyle = from >= todayPosX ? config.taskLineColor : config.taskFinishLineColor;
           ctx.beginPath();
-          ctx.moveTo(from, step * i + config.scaleFontSize * 3 / 25);
-          ctx.lineTo(to, step * i + config.scaleFontSize * 3 / 25);
+          ctx.moveTo(from, step * i + config.scaleFontSize * 3 / 2);
+          ctx.lineTo(to, step * i + config.scaleFontSize * 3 / 2);
           ctx.stroke();
         }
       }
@@ -65,6 +65,13 @@
         ctx.moveTo(todayPosX, 0);
         ctx.lineTo(todayPosX, scaleHeight);
         ctx.stroke();
+        if (config.taskShowToday) {
+          ctx.textAlign = "center";
+          ctx.font = "" + config.scaleFontStyle + " " + config.scaleFontSize + "px " + config.scaleFontFamily;
+          ctx.textBaseline = "top";
+          ctx.fillStyle = config.scaleFontColor;
+          ctx.fillText("Today", todayPosX, 0);
+        }
       }
       return null;
     };
@@ -84,19 +91,19 @@
       ctx.stroke();
       step1 = (scaleWidth - 5) / data.totalWeeks;
       ctx.textAlign = "right";
-      ctx.textBaseLine = "top";
-      ctx.fillText(data.start, width - scaleWidth, scaleHeight);
+      ctx.textBaseline = "top";
+      ctx.fillText(data.start, width - scaleWidth, scaleHeight + 5);
       for (i = _j = 1, _ref1 = data.totalWeeks; 1 <= _ref1 ? _j <= _ref1 : _j >= _ref1; i = 1 <= _ref1 ? ++_j : --_j) {
-        posX = width - scaleWidth + step1 * i;
+        posX = width - scaleWidth + step1 * i + 5;
         ctx.beginPath();
         ctx.moveTo(posX, 0);
         ctx.lineTo(posX, scaleHeight);
         ctx.stroke();
-        ctx.fillText("" + i, posX, scaleHeight);
+        ctx.fillText("" + i, posX, scaleHeight + 5);
       }
       ctx.font = "" + config.scaleFontStyle + " " + config.scaleTaskFontSize + "px " + config.scaleFontFamily;
       ctx.fillStyle = config.scaleTaskFontColor;
-      ctx.textBaseLine = "middle";
+      ctx.textBaseline = "middle";
       step = config.scaleTaskFontSize + 5;
       _ref2 = data.tasks;
       for (i = _k = 0, _len1 = _ref2.length; _k < _len1; i = ++_k) {

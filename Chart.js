@@ -795,7 +795,7 @@ window.Chart = function(context){
     animationLoop(config,drawScale ,drawGanttTasks,ctx);
 
     function drawGanttTasks(animationDecimal){
-      var from, i, task, to, todayPosX, _i, _len, _ref;
+      var from, i, to, todayPosX, _j, _len1, _ref1;
       todayPosX = 0;
       if (diff < data.totalWeeks) {
         todayPosX = width - scaleWidth + diff / data.totalWeeks * animationDecimal * (scaleWidth - 5);
@@ -803,9 +803,9 @@ window.Chart = function(context){
       ctx.lineCap = "round";
       ctx.lineWidth = config.taskLineWidth;
       ctx.strokeStyle = config.taskLineColor;
-      _ref = data.tasks;
-      for (i = _i = 0, _len = _ref.length; _i < _len; i = ++_i) {
-        task = _ref[i];
+      _ref1 = data.tasks;
+      for (i = _j = 0, _len1 = _ref1.length; _j < _len1; i = ++_j) {
+        task = _ref1[i];
         from = width - scaleWidth + task.from / data.totalWeeks * (scaleWidth - 5);
         to = width - scaleWidth + (task.from + (task.to - task.from) * animationDecimal) / data.totalWeeks * (scaleWidth - 5);
         if ((from < todayPosX && todayPosX < to)) {
@@ -834,20 +834,18 @@ window.Chart = function(context){
         ctx.moveTo(todayPosX, 0);
         ctx.lineTo(todayPosX, scaleHeight);
         ctx.stroke();
-
-        if (config.taskShowToday){				
-          ctx.textAlign = 'center';
-          ctx.font = config.scaleFontStyle + " " + config.scaleFontSize+"px " + config.scaleFontFamily; 
+        if (config.taskShowToday) {
+          ctx.textAlign = "center";
+          ctx.font = "" + config.scaleFontStyle + " " + config.scaleFontSize + "px " + config.scaleFontFamily;
           ctx.textBaseline = "top";
-
           ctx.fillStyle = config.scaleFontColor;
-          ctx.fillText("Today", todayPosX,0);
+          ctx.fillText("Today", todayPosX, 0);
         }
       }
     }		
 
     function drawScale () {
-      var i, posX, step2, task, _i, _j, _len, _ref, _ref1;
+      var i, posX, step1, _j, _k, _len1, _ref1, _ref2;
       ctx.lineWidth = config.scaleLineWidth;
       ctx.strokeStyle = config.scaleLineColor;
       ctx.beginPath();
@@ -860,12 +858,12 @@ window.Chart = function(context){
       ctx.moveTo(width - scaleWidth, 0);
       ctx.lineTo(width - scaleWidth, scaleHeight);
       ctx.stroke();
-      step2 = (scaleWidth - 5) / data.totalWeeks;
+      step1 = (scaleWidth - 5) / data.totalWeeks;
       ctx.textAlign = "right";
       ctx.textBaseline = "top";
       ctx.fillText(data.start, width - scaleWidth, scaleHeight + 5);
-      for (i = _i = 1, _ref = data.totalWeeks; 1 <= _ref ? _i <= _ref : _i >= _ref; i = 1 <= _ref ? ++_i : --_i) {
-        posX = width - scaleWidth + step2 * i;
+      for (i = _j = 1, _ref1 = data.totalWeeks; 1 <= _ref1 ? _j <= _ref1 : _j >= _ref1; i = 1 <= _ref1 ? ++_j : --_j) {
+        posX = width - scaleWidth + step1 * i;
         ctx.beginPath();
         ctx.moveTo(posX, 0);
         ctx.lineTo(posX, scaleHeight);
@@ -875,9 +873,9 @@ window.Chart = function(context){
       ctx.font = "" + config.scaleFontStyle + " " + config.scaleTaskFontSize + "px " + config.scaleFontFamily;
       ctx.fillStyle = config.scaleTaskFontColor;
       ctx.textBaseline = "middle";
-      _ref1 = data.tasks;
-      for (i = _j = 0, _len = _ref1.length; _j < _len; i = ++_j) {
-        task = _ref1[i];
+      _ref2 = data.tasks;
+      for (i = _k = 0, _len1 = _ref2.length; _k < _len1; i = ++_k) {
+        task = _ref2[i];
         ctx.fillText(task.name, width - scaleWidth - 5, step * i + config.scaleFontSize * 3 / 2);
       }
       ctx.font = "" + config.scaleFontStyle + " " + config.scaleFontSize + "px " + config.scaleFontFamily;
