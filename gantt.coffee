@@ -96,7 +96,6 @@ Gantt = (data, config, ctx) ->
     ctx.font = "#{config.scaleFontStyle} #{config.scaleTaskFontSize}px #{config.scaleFontFamily}"
     ctx.fillStyle = config.scaleTaskFontColor
     ctx.textBaseline = "middle"
-    step = config.scaleTaskFontSize + 5
     for task, i in data.tasks
       ctx.fillText task.name, width - scaleWidth - 5, step * i + config.scaleFontSize * 3 / 2
     ctx.font = "#{config.scaleFontStyle} #{config.scaleFontSize}px #{config.scaleFontFamily}"

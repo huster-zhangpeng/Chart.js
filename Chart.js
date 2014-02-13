@@ -863,7 +863,7 @@ window.Chart = function(context){
       ctx.textBaseline = "top";
       ctx.fillText(data.start, width - scaleWidth, scaleHeight + 5);
       for (i = _j = 1, _ref1 = data.totalWeeks; 1 <= _ref1 ? _j <= _ref1 : _j >= _ref1; i = 1 <= _ref1 ? ++_j : --_j) {
-        posX = width - scaleWidth + step1 * i;
+        posX = width - scaleWidth + step1 * i + 5;
         ctx.beginPath();
         ctx.moveTo(posX, 0);
         ctx.lineTo(posX, scaleHeight);
@@ -878,7 +878,6 @@ window.Chart = function(context){
         task = _ref2[i];
         ctx.fillText(task.name, width - scaleWidth - 5, step * i + config.scaleFontSize * 3 / 2);
       }
-      ctx.font = "" + config.scaleFontStyle + " " + config.scaleFontSize + "px " + config.scaleFontFamily;
     }
   }
 

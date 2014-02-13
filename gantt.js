@@ -104,7 +104,6 @@
       ctx.font = "" + config.scaleFontStyle + " " + config.scaleTaskFontSize + "px " + config.scaleFontFamily;
       ctx.fillStyle = config.scaleTaskFontColor;
       ctx.textBaseline = "middle";
-      step = config.scaleTaskFontSize + 5;
       _ref2 = data.tasks;
       for (i = _k = 0, _len1 = _ref2.length; _k < _len1; i = ++_k) {
         task = _ref2[i];
