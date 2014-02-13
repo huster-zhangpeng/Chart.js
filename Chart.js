@@ -264,6 +264,7 @@ window.Chart = function(context){
   this.Gantt = function(data,options){
     chart.Gantt.defaults = {
       maxTaskNameLength : 130,
+      minTaskNameLength : 80,
       scaleLineColor : "rgba(0,0,0,.1)",
       scaleLineWidth : 1,
       scaleFontFamily : "'Arial'",
@@ -272,7 +273,7 @@ window.Chart = function(context){
       scaleFontColor : "#666",
       scaleWeekLineWidth : 2,
       scaleWeekLineColor : "#333",
-      scaleTaskFontSize : 12,
+      scaleTaskFontSize : 14,
       scaleTaskFontColor : "#666",
       animation : true,
       animationSteps : 100,
@@ -280,10 +281,10 @@ window.Chart = function(context){
       onAnimationComplete : null,
       taskLineWidth : 5,
       taskLineColor : "rgba(0,0,255,.4)",
+      taskFinishLineColor : "rgb(255,0,0)",
+      taskTodayLineWidth : 3,
+      taskShowToday : true,
 
-      segmentShowStroke : true,
-      segmentStrokeColor : "#fff",
-      segmentStrokeWidth : 2,
       animateRotate : true,
       animateScale : false
     };		
@@ -767,16 +768,25 @@ window.Chart = function(context){
   }
   
   var Gantt = function(data,config,ctx){
-    var segmentTotal = 0, scaleHeight, scaleWidth;
-    scaleHeight = height - config.scaleFontSize - 5;
-    scaleWidth = width - config.maxTaskNameLength - 5;
-
-    //In case we have a canvas that is not a square. Minus 5 pixels as padding round the edge.
-    var pieRadius = Min([height/2,width/2]) - 5;
-
-    for (var i=0; i<data.pieData.length; i++){
-      segmentTotal += data.pieData[i].value;
+    var diff, maxLabelLength, scaleHeight, scaleWidth, startDay, step, task, taskLabelLength, today, _i, _len, _ref;
+    maxLabelLength = 0;
+    _ref = data.tasks;
+    for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+      task = _ref[_i];
+      taskLabelLength = ctx.measureText(task.name).width;
+      if (taskLabelLength > maxLabelLength) {
+        maxLabelLength = taskLabelLength;
+      }
     }
+    if (maxLabelLength > config.maxTaskNameLength) {
+      maxLabelLength = config.maxTaskNameLength;
+    }
+    if (maxLabelLength < config.minTaskNameLength) {
+      maxLabelLength = config.minTaskNameLength;
+    }
+    scaleHeight = height - config.scaleFontSize - 5;
+    scaleWidth = width - maxLabelLength - 5;
+    step = config.scaleTaskFontSize + 5;
 
     today = new Date();
     startDay = new Date(data.start);
@@ -785,12 +795,11 @@ window.Chart = function(context){
     animationLoop(config,drawScale ,drawGanttTasks,ctx);
 
     function drawGanttTasks(animationDecimal){
-      var from, i, step, task, to, todayPosX, _i, _len, _ref;
+      var from, i, task, to, todayPosX, _i, _len, _ref;
       todayPosX = 0;
       if (diff < data.totalWeeks) {
         todayPosX = width - scaleWidth + diff / data.totalWeeks * animationDecimal * (scaleWidth - 5);
       }
-      step = 20;
       ctx.lineCap = "round";
       ctx.lineWidth = config.taskLineWidth;
       ctx.strokeStyle = config.taskLineColor;
@@ -800,36 +809,45 @@ window.Chart = function(context){
         from = width - scaleWidth + task.from / data.totalWeeks * (scaleWidth - 5);
         to = width - scaleWidth + (task.from + (task.to - task.from) * animationDecimal) / data.totalWeeks * (scaleWidth - 5);
         if ((from < todayPosX && todayPosX < to)) {
-          ctx.strokeStyle = "rgb(255,0,0)";
+          ctx.strokeStyle = config.taskFinishLineColor;
           ctx.beginPath();
-          ctx.moveTo(from, step * i + 5);
-          ctx.lineTo(todayPosX, step * i + 5);
+          ctx.moveTo(from, step * i + config.scaleFontSize * 3 / 2);
+          ctx.lineTo(todayPosX, step * i + config.scaleFontSize * 3 / 2);
           ctx.stroke();
           ctx.strokeStyle = config.taskLineColor;
           ctx.beginPath();
-          ctx.moveTo(todayPosX, step * i + 5);
-          ctx.lineTo(to, step * i + 5);
+          ctx.moveTo(todayPosX, step * i + config.scaleFontSize * 3 / 2);
+          ctx.lineTo(to, step * i + config.scaleFontSize * 3 / 2);
           ctx.stroke();
         } else {
-          ctx.strokeStyle = from >= todayPosX ? config.taskLineColor : "rgb(255,0,0)";
+          ctx.strokeStyle = from >= todayPosX ? config.taskLineColor : config.taskFinishLineColor;
           ctx.beginPath();
-          ctx.moveTo(from, step * i + 5);
-          ctx.lineTo(to, step * i + 5);
+          ctx.moveTo(from, step * i + config.scaleFontSize * 3 / 2);
+          ctx.lineTo(to, step * i + config.scaleFontSize * 3 / 2);
           ctx.stroke();
         }
       }
       if (todayPosX > 0) {
-        ctx.lineWidth = config.scaleWeekLineWidth + 2;
-        ctx.strokeStyle = "rgba(255,0,0,.4)";
+        ctx.lineWidth = config.taskTodayLineWidth;
+        ctx.strokeStyle = config.taskFinishLineColor;
         ctx.beginPath();
         ctx.moveTo(todayPosX, 0);
         ctx.lineTo(todayPosX, scaleHeight);
         ctx.stroke();
+
+        if (config.taskShowToday){				
+          ctx.textAlign = 'center';
+          ctx.font = config.scaleFontStyle + " " + config.scaleFontSize+"px " + config.scaleFontFamily; 
+          ctx.textBaseline = "top";
+
+          ctx.fillStyle = config.scaleFontColor;
+          ctx.fillText("Today", todayPosX,0);
+        }
       }
     }		
 
     function drawScale () {
-      var i, posX, step, task, _i, _j, _len, _ref, _ref1;
+      var i, posX, step2, task, _i, _j, _len, _ref, _ref1;
       ctx.lineWidth = config.scaleLineWidth;
       ctx.strokeStyle = config.scaleLineColor;
       ctx.beginPath();
@@ -842,26 +860,27 @@ window.Chart = function(context){
       ctx.moveTo(width - scaleWidth, 0);
       ctx.lineTo(width - scaleWidth, scaleHeight);
       ctx.stroke();
-      step = (scaleWidth - 5) / data.totalWeeks;
+      step2 = (scaleWidth - 5) / data.totalWeeks;
       ctx.textAlign = "right";
-      ctx.fillText(data.start, width - scaleWidth, scaleHeight + config.scaleFontSize);
+      ctx.textBaseline = "top";
+      ctx.fillText(data.start, width - scaleWidth, scaleHeight + 5);
       for (i = _i = 1, _ref = data.totalWeeks; 1 <= _ref ? _i <= _ref : _i >= _ref; i = 1 <= _ref ? ++_i : --_i) {
-        posX = width - scaleWidth + step * i;
+        posX = width - scaleWidth + step2 * i;
         ctx.beginPath();
         ctx.moveTo(posX, 0);
         ctx.lineTo(posX, scaleHeight);
         ctx.stroke();
-        ctx.fillText("" + i, posX, scaleHeight + config.scaleFontSize);
+        ctx.fillText("" + i, posX, scaleHeight + 5);
       }
-      ctx.font = config.scaleFontStyle + " " + config.scaleTaskFontSize + "px " + config.scaleFontFamily;
+      ctx.font = "" + config.scaleFontStyle + " " + config.scaleTaskFontSize + "px " + config.scaleFontFamily;
       ctx.fillStyle = config.scaleTaskFontColor;
-      step = config.scaleTaskFontSize + 5;
+      ctx.textBaseline = "middle";
       _ref1 = data.tasks;
       for (i = _j = 0, _len = _ref1.length; _j < _len; i = ++_j) {
         task = _ref1[i];
-        ctx.fillText(task.name, width - scaleWidth - 5, step * i + config.scaleTaskFontSize + 5);
+        ctx.fillText(task.name, width - scaleWidth - 5, step * i + config.scaleFontSize * 3 / 2);
       }
-      ctx.font = config.scaleFontStyle + " " + config.scaleFontSize + "px " + config.scaleFontFamily;
+      ctx.font = "" + config.scaleFontStyle + " " + config.scaleFontSize + "px " + config.scaleFontFamily;
     }
   }
 

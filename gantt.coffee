@@ -1,23 +1,14 @@
-###
-Gantt 每行都有固定高度
-Gantt 右边应该有个最大的textlength
-Gantt 表示日期的在下面，从0开始
-Gantt 最小时间单位以周为单位
-Gantt 最长周数不会超过2位数
-Gantt 最大任务数有限制
-###
-
 Gantt = (data, config, ctx) ->
-  limit =
-    maxWeeks: 99
-    maxTasks: 10
-
   #scale bound
+  maxLabelLength = 0
+  for task in data.tasks
+    taskLabelLength = ctx.measureText task.name 
+    maxLabelLength = taskLabelLength if taskLabelLength > maxLabelLength
+  maxLabelLength = config.maxTaskNameLength if maxLabelLength > config.maxTaskNameLength
+  maxLabelLength = config.minTaskNameLength if maxLabelLength < config.minTaskNameLength
   scaleHeight = height - config.scaleFontSize - 5
-  scaleWidth = width - config.maxTaskNameLength - 5
-
-  config =
-    maxTaskNameLength: 20
+  scaleWidth = width - maxLabelLength - 5
+  step = config.scaleTaskFontSize + 5
 
   today = new Date()
   startDay = new Date data.start
@@ -28,34 +19,33 @@ Gantt = (data, config, ctx) ->
     if diff < data.totalWeeks
       todayPosX = width - scaleWidth + diff / data.totalWeeks * animationDecimal * (scaleWidth - 5)
 
-    step = 20
     ctx.lineCap = "round"
     ctx.lineWidth = config.taskLineWidth
     ctx.strokeStyle = config.taskLineColor
     for task, i in data.tasks
-      ctx.beginPath()
       from = width - scaleWidth + task.from / data.totalWeeks * (scaleWidth - 5)
       to = width - scaleWidth + (task.from + (task.to - task.from) * animationDecimal) / data.totalWeeks * (scaleWidth - 5)
       if from < todayPosX < to
-        ctx.strokeStyle = "rgb(255,0,0)"
+        ctx.strokeStyle = config.taskFinishLineColor
         ctx.beginPath()
-        ctx.moveTo from, step * i + 5
-        ctx.lineTo todayPosX, step * i + 5
+        ctx.moveTo from, step * i + config.scaleFontSize * 3 / 25
+        ctx.lineTo todayPosX, step * i + config.scaleFontSize * 3 / 25
         ctx.stroke()
         ctx.strokeStyle = config.taskLineColor
-        ctx.moveTo todayPosX, step * i + 5
-        ctx.lineTo to, step * i + 5
+        ctx.beginPath()
+        ctx.moveTo todayPosX, step * i + config.scaleFontSize * 3 / 25
+        ctx.lineTo to, step * i + config.scaleFontSize * 3 / 25
         ctx.stroke()
       else
-        ctx.strokeStyle = if from >= todayPosX then config.taskLineColor else "rgb(255,0,0)" 
+        ctx.strokeStyle = if from >= todayPosX then config.taskLineColor else config.taskFinishLineColor
         ctx.beginPath()
-        ctx.moveTo from, step * i + 5
-        ctx.lineTo to, step * i + 5
+        ctx.moveTo from, step * i + config.scaleFontSize * 3 / 25
+        ctx.lineTo to, step * i + config.scaleFontSize * 3 / 25
         ctx.stroke()
 
     if todayPosX > 0
-      ctx.lineWidth = config.scaleWeekLineWidth
-      ctx.strokeStyle = "rgba(255,0,0,.4)"
+      ctx.lineWidth = config.taskTodayLineWidth
+      ctx.strokeStyle =  config.taskFinishLineColor
       ctx.beginPath()
       ctx.moveTo todayPosX, 0
       ctx.lineTo todayPosX, scaleHeight
@@ -80,26 +70,28 @@ Gantt = (data, config, ctx) ->
     ctx.lineTo width - scaleWidth, scaleHeight
     ctx.stroke()
     #draw week bounce
-    step = (scaleWidth - 5) / data.totalWeeks
+    step1 = (scaleWidth - 5) / data.totalWeeks
     ctx.textAlign = "right"
-    ctx.fillText data.start, width - scaleWith, scaleHeight + config.scaleFontSize
+    ctx.textBaseLine = "top"
+    ctx.fillText data.start, width - scaleWidth, scaleHeight
     for i in [1..data.totalWeeks]
-      posX = width - scaleWidth + step * i
+      posX = width - scaleWidth + step1 * i
 
       ctx.beginPath()
       ctx.moveTo posX, 0
       ctx.lineTo posX, scaleHeight
       ctx.stroke()
 
-      ctx.fillText "#{i}", posX, scaleHeight + config.scaleFontSize
+      ctx.fillText "#{i}", posX, scaleHeight 
 
     #draw tasks'name
-    ctx.font = "#{ctx.scaleFontStyle} #{ctx.scaleTaskFontSize}px #{ctx.scaleFontFamily}"
-    ctx.fillStyle = ctx.scaleTaskFontColor
-    step = config.scaleTaskFontSize + 20
+    ctx.font = "#{config.scaleFontStyle} #{config.scaleTaskFontSize}px #{config.scaleFontFamily}"
+    ctx.fillStyle = config.scaleTaskFontColor
+    ctx.textBaseLine = "middle"
+    step = config.scaleTaskFontSize + 5
     for task, i in data.tasks
-      ctx.fillText task.name, width - scaleWidth - 5, step * i + config.scaleTaskFontSize + 5
-    ctx.font = "#{ctx.scaleFontStyle} #{ctx.scaleFontSize}px #{ctx.scaleFontFamily}"
+      ctx.fillText task.name, width - scaleWidth - 5, step * i + config.scaleFontSize * 3 / 2
+    ctx.font = "#{config.scaleFontStyle} #{config.scaleFontSize}px #{config.scaleFontFamily}"
 
     null
 
