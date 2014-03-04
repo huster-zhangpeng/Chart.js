@@ -1,53 +1,52 @@
 Chart.js
 
-#I want to let it can draw gantt picture.
+#It can draw gantt image now!
 =======
 *Simple HTML5 Charts using the canvas element* [chartjs.org](http://www.chartjs.org)
 
-<div>
-<script type="text/javascript" src="https://github.com/huster-zhangpeng/Chart.js/raw/master/Chart.js"></script>
+Sample
+-------
+请下载Chart.min.js, test.js, test.html到本地同一目录下，然后打开test.html即可查看效果
+
+How to use
+-------
+使用方式同Chart.js一样：
+```html
+
     <canvas id="myChart1" width="800" height="400"></canvas>
-<script type="text/javascript">
+
+    var ctx1 = document.getElementById("myChart1").getContext("2d");
+    var myNewChart = new Chart(ctx1).Gantt(data);
+```
+**数据结构**
+```js 
 var data = {
   start: "2014-01-20",
   totalWeeks: 7,
   tasks: [{
-    name: "Go to school",
+    name: "Today I need go to school",
     from: 0,
     to: 4
   },
   {
     name: "界面设计",
     from: 4,
-    to: 6
+    to: 7
+  },
+  {
+    name: "数值分析",
+    from: 3,
+    to: 5
   },
   {
     name: "数值分析",
     from: 5,
     to: 7
-  },
-  {
-    name: "关卡设计",
-    from: 4,
-    to: 6
-  }],
-  pieData: [{
-    value: 30,
-    color:"#F38630"
-  },
-  {
-    value : 50,
-    color : "#E0E4CC"
-  },
-  {
-    value : 100,
-    color : "#69D2E7"
-  }]
-};
-var ctx1 = document.getElementById("myChart1").getContext("2d");
-var myNewChart = new Chart(ctx1).Gantt(data);
-</script>
-</div>
+  }
+}
+````
+
+
 
 Documentation
 -------
