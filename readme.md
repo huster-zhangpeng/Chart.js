@@ -1,12 +1,12 @@
 Chart.js
 
-#It can draw gantt image now!
+It can draw gantt image now!
 =======
 *Simple HTML5 Charts using the canvas element* [chartjs.org](http://www.chartjs.org)
 
 Sample
 -------
-请下载Chart.min.js, test.js, test.html到本地同一目录下，然后打开test.html即可查看效果
+请下载Chart.js, test.js, test.html到本地同一目录下，然后打开test.html即可查看效果
 
 How to use
 -------
