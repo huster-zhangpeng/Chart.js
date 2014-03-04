@@ -94,7 +94,7 @@
       ctx.textBaseline = "top";
       ctx.fillText(data.start, width - scaleWidth, scaleHeight + 5);
       for (i = _j = 1, _ref1 = data.totalWeeks; 1 <= _ref1 ? _j <= _ref1 : _j >= _ref1; i = 1 <= _ref1 ? ++_j : --_j) {
-        posX = width - scaleWidth + step1 * i + 5;
+        posX = width - scaleWidth + step1 * i;
         ctx.beginPath();
         ctx.moveTo(posX, 0);
         ctx.lineTo(posX, scaleHeight);
