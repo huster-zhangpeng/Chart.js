@@ -5,6 +5,7 @@ Chart.js
 *Simple HTML5 Charts using the canvas element* [chartjs.org](http://www.chartjs.org)
 
 <div>
+<script type="text/javascript" src="https://github.com/huster-zhangpeng/Chart.js/raw/master/Chart.js"></script>
     <canvas id="myChart1" width="800" height="400"></canvas>
 <script type="text/javascript">
 var data = {
