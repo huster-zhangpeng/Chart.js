@@ -12,17 +12,17 @@ How to use
 -------
 使用方式同Chart.js一样：
 ```html
+<script type="text/javascript" src="Chart.min.js"></script>
+<canvas id="myChart1" width="800" height="400"></canvas>
 
-    <canvas id="myChart1" width="800" height="400"></canvas>
-
-    var ctx1 = document.getElementById("myChart1").getContext("2d");
-    var myNewChart = new Chart(ctx1).Gantt(data);
+var ctx1 = document.getElementById("myChart1").getContext("2d");
+var myNewChart = new Chart(ctx1).Gantt(data);
 ```
 **数据结构**
 ```js 
 var data = {
   start: "2014-01-20",
-  totalWeeks: 7,
+  totalWeeks: 9,
   tasks: [{
     name: "Today I need go to school",
     from: 0,
@@ -39,14 +39,17 @@ var data = {
     to: 5
   },
   {
-    name: "数值分析",
+    name: "关卡分析",
     from: 5,
     to: 7
+  },
+  {
+    name: "测试",
+    from: 8,
+    to: 9
   }
 }
-````
-
-
+```
 
 Documentation
 -------
